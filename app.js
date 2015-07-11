@@ -18,9 +18,13 @@ io.on('connection', function(socket){
     io.emit('disconnect', 'Goodbye!');
   });
 
-  socket.on('user typing', function(msg){
+  socket.on('typing', function(msg){
     console.log('message — ' + msg);
-    socket.broadcast.emit('user typing', msg);
+    socket.broadcast.emit('typing', msg);
+  });
+
+  socket.on('stop typing', function(){
+    socket.broadcast.emit('stop typing');
   });
 
   socket.on('chat message', function(name, msg){

@@ -1,16 +1,33 @@
 
-$('#message').on('keyup', function(){
-  var msgField = $('#message').val().length,
-      name = $('#name').val();
+var typingStatus = function(field){
+  var isTyping = false;
 
-  if (msgField > 0) {
-    console.log(name + ' is typing. . .')
-    if (name !== '') {
-      socket.emit('user typing', name + ' is typing . . .');
-    } else {
-      socket.emit('user typing', 'Someone is typing . . .');
-    }
+  if (field > 0 ) {
+    isTyping = true;
   }
+
+  return isTyping;
+
+};
+
+
+$('#message').on('focus', function(){
+  var name = $('#name').val()
+
+  $('#message').on('keydown', function(){
+    var msgField = $('#message').val().length;
+
+    if (typingStatus(msgField) && name !== '') {
+      socket.emit('typing', name + ' is typing. . .' );
+    } else if (typingStatus(msgField)) {
+      socket.emit('typing', 'Someone is typing. . .' );
+    }
+  });
+
+  $('#message').on('keyup', function(){
+    socket.emit('stop typing');
+  });
+
 });
 
 
@@ -25,10 +42,13 @@ $('form').submit(function(){
   return false;
 });
 
-socket.on('user typing', function(msg){
+socket.on('typing', function(msg){
   $('#messages').append($('<li>').html(msg));
 });
 
+socket.on('stop typing', function(){
+  // $('#messages li').remove(":contains('is typing')");
+});
 
 socket.on('chat message', function(name, msg){
   var chatMessage = name + ": " + msg;
